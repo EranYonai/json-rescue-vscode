@@ -1,0 +1,10 @@
+{
+  // This is a comment
+  "name": "John Doe",
+  "age": 30,
+  "isStudent": false,
+  "courses": [
+    { "title": "History", "credits": 3, }, // Trailing comma in object
+    { "title": "Math", "credits": 4 }
+  ], // Trailing comma in array
+}

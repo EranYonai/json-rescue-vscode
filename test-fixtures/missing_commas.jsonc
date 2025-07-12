@@ -1,0 +1,9 @@
+{
+    "key1": "value1"
+    "key2": "value2",
+    "anArray": [
+        "item1"
+        "item2",
+        "item3"
+    ]
+}

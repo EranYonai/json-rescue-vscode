@@ -1,0 +1,15 @@
+[package]
+name = "formatter"
+version = "0.1.0"
+edition = "2021"
+description = "A robust, CST-based library for formatting lenient JSON (JSONC/JSON5)."
+
+[lib]
+crate-type = ["cdylib"] # WASM output
+
+[dependencies]
+wasm-bindgen = "0.2"
+jsonc-parser = { version = "0.26", features = ["cst"] }
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
