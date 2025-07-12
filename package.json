@@ -18,14 +18,14 @@
       }
     ]
   },
-"scripts": {
-  "vscode:prepublish": "npm run build-all",
-  "build-all": "npm run build-wasm && npm run build-ts",
-  "build-wasm": "wasm-pack build ./formatter --target web --out-dir pkg",
-  "build-ts": "webpack --mode production --devtool hidden-source-map",
-  "watch": "webpack --watch",
-  "test": "node ./out/test/runTest.js"
-},
+  "scripts": {
+    "vscode:prepublish": "npm run build-all",
+    "build-all": "npm run build-wasm && npm run build-ts",
+    "build-wasm": "export PATH=$HOME/.cargo/bin:$PATH && cd src/formatter && wasm-pack build --target web --out-dir pkg",
+    "build-ts": "webpack --mode production --devtool hidden-source-map",
+    "watch": "webpack --watch",
+    "test": "node ./out/test/runTest.js"
+  },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
@@ -40,5 +40,8 @@
     "typescript": "^5.8.3",
     "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "formatter": "file:src/formatter/pkg"
   }
 }

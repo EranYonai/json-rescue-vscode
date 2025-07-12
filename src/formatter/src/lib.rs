@@ -3,14 +3,15 @@ use jsonc_parser::cst::{CstRootNode, CstNode, CstContainerNode, CstLeafNode};
 use jsonc_parser::ParseOptions;
 
 // A struct to hold the state of the formatting process.
-struct FormatterState<'a> {
-    output: &'a mut String,
+// It now owns the output string, removing the need for a lifetime parameter.
+struct FormatterState {
+    output: String,
     indent_level: usize,
     indent_str: &'static str,
     is_on_new_line: bool,
 }
 
-impl<'a> FormatterState<'a> {
+impl FormatterState {
     // Appends a string to the output, handling indentation if necessary.
     fn push_str(&mut self, s: &str) {
         if self.is_on_new_line && !s.trim().is_empty() {
@@ -55,9 +56,9 @@ pub fn format_json(input: &str) -> Result<String, JsValue> {
     let root_node = CstRootNode::parse(input, &parse_options)
         .map_err(|err| JsValue::from_str(&format!("Parse Error: {}", err)))?;
 
-    let mut output = String::with_capacity(input.len() * 2);
+    // The FormatterState now initializes its own output string.
     let mut state = FormatterState {
-        output: &mut output,
+        output: String::with_capacity(input.len() * 2),
         indent_level: 0,
         indent_str: "    ",
         is_on_new_line: false,
@@ -73,6 +74,9 @@ pub fn format_json(input: &str) -> Result<String, JsValue> {
         state.push_str(&root_node.to_string());
     }
     
+    // Move the formatted string out of the state to be returned.
+    let mut output = state.output;
+
     // Ensure the final output has a trailing newline
     if !output.is_empty() && !output.ends_with('\n') {
        output.push('\n');
@@ -81,23 +85,28 @@ pub fn format_json(input: &str) -> Result<String, JsValue> {
     Ok(output)
 }
 
+// The helper functions now operate on the state struct that owns the string.
+// Their signatures do not need to change.
 fn format_object(obj: &jsonc_parser::cst::CstObject, state: &mut FormatterState) {
     state.push_str("{");
     
-    // properties() returns Vec<CstObjectProp>, not an iterator
     let properties = obj.properties();
     if !properties.is_empty() {
         state.indent();
         for (i, prop) in properties.iter().enumerate() {
             state.push_newline();
             
-            // Format key - handle ObjectPropName properly
+            // Format key
             if let Some(name) = prop.name() {
-                let name_str = match name.decoded_value() {
+                // `ObjectPropName` doesn't implement `Display`. We need to decode its value
+                // and then re-format it as a valid JSON string key. This handles both
+                // quoted and unquoted keys from the source.
+                let key_value = match name.decoded_value() {
                     Ok(decoded) => decoded,
-                    Err(_) => "unknown".to_string(), // fallback to a default string
+                    // If decoding fails, we'll use a placeholder.
+                    Err(_) => "unknown_key".to_string(),
                 };
-                state.push_str(&format!("\"{}\"", name_str));
+                state.push_str(&format!("\"{}\"", key_value));
             }
             state.push_str(": ");
             
@@ -120,7 +129,6 @@ fn format_object(obj: &jsonc_parser::cst::CstObject, state: &mut FormatterState)
 fn format_array(arr: &jsonc_parser::cst::CstArray, state: &mut FormatterState) {
     state.push_str("[");
     
-    // elements() returns Vec<CstNode>, not an iterator
     let elements = arr.elements();
     if !elements.is_empty() {
         state.indent();
@@ -145,61 +153,21 @@ fn format_node(node: &CstNode, state: &mut FormatterState) {
             match container {
                 CstContainerNode::Object(obj) => format_object(obj, state),
                 CstContainerNode::Array(arr) => format_array(arr, state),
-                CstContainerNode::ObjectProp(prop) => {
-                    // This shouldn't happen in our context, but handle it
-                    if let Some(name) = prop.name() {
-                        let name_str = match name.decoded_value() {
-                            Ok(decoded) => decoded,
-                            Err(_) => "unknown".to_string(), // fallback to a default string
-                        };
-                        state.push_str(&format!("\"{}\"", name_str));
-                    }
-                    state.push_str(": ");
-                    if let Some(value) = prop.value() {
-                        format_node(&value, state);
-                    }
-                }
-                CstContainerNode::Root(root) => {
-                    // Handle root node - this shouldn't happen in our recursion but we need to cover it
-                    if let Some(obj) = root.object_value() {
-                        format_object(&obj, state);
-                    } else if let Some(arr) = root.array_value() {
-                        format_array(&arr, state);
-                    } else {
-                        state.push_str(&root.to_string());
-                    }
-                }
+                // The other container types are not expected at this level of formatting
+                _ => {} 
             }
         }
         CstNode::Leaf(leaf) => {
+            // For leaf nodes, we can just use their text representation directly.
+            // This preserves the original number and string formatting.
             match leaf {
-                CstLeafNode::BooleanLit(b) => {
-                    state.push_str(if b.value() { "true" } else { "false" });
-                }
-                CstLeafNode::NullKeyword(_) => {
-                    state.push_str("null");
-                }
-                CstLeafNode::NumberLit(n) => {
-                    // Use the text representation instead of trying to parse
-                    state.push_str(&n.to_string());
-                }
-                CstLeafNode::StringLit(s) => {
-                    // Handle the Result from decoded_value()
-                    let decoded = match s.decoded_value() {
-                        Ok(value) => value,
-                        Err(_) => s.to_string(), // fallback to raw string
-                    };
-                    state.push_str(&format!("\"{}\"", decoded));
-                }
-                CstLeafNode::WordLit(w) => {
-                    // Handle unquoted properties - use to_string() as fallback
-                    state.push_str(&format!("\"{}\"", w.to_string()));
-                }
-                // Skip comments, whitespace, and tokens in formatting
+                // Skip comments, whitespace, and other tokens that aren't part of the value.
                 CstLeafNode::Comment(_) | 
                 CstLeafNode::Whitespace(_) | 
                 CstLeafNode::Token(_) | 
                 CstLeafNode::Newline(_) => {}
+                // For all other literals, push their raw text.
+                _ => state.push_str(&leaf.to_string()),
             }
         }
     }

@@ -39,7 +39,7 @@ const config = {
   },
   plugins: [ // <-- Add this plugins section
     new CopyPlugin({
-      patterns: [{ from: 'formatter/pkg', to: 'pkg' }]
+      patterns: [{ from: 'src/formatter/pkg', to: 'pkg' }]
     })
   ],
   devtool: 'nosources-source-map',
