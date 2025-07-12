@@ -1,0 +1,7 @@
+{
+    "unquotedKey": "some value",
+    "anotherKey": "another value",
+    "nested": {
+        "a": 1
+    }
+}

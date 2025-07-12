@@ -1,0 +1,8 @@
+{
+  // Keys without quotes and values with single quotes
+  unquotedKey: 'some value',
+  'anotherKey': "another value",
+  nested: {
+    a: 1, // another unquoted key
+  },
+}

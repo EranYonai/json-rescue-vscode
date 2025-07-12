@@ -24,11 +24,12 @@
     "build-wasm": "export PATH=$HOME/.cargo/bin:$PATH && cd src/formatter && wasm-pack build --target web --out-dir pkg",
     "build-ts": "webpack --mode production --devtool hidden-source-map",
     "watch": "webpack --watch",
-    "test": "node ./out/test/runTest.js"
+    "test": "npm run compile_tests && node out/test/node-test-runner.js",
+    "compile_tests": "tsc -p ./"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
-    "@types/node": "20.x",
+    "@types/node": "^20.19.7",
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",

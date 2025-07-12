@@ -7,22 +7,19 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 /**@type {import('webpack').Configuration}*/
 const config = {
-  target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
-  mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
-
-  entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  target: 'node', // VS Code extensions run in a Node.js-context
+  entry: './src/extension.ts',
   output: {
-    // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
+    devtoolModuleFilenameTemplate: '../[resource-path]',
   },
   externals: {
-    vscode: 'commonjs vscode' // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
+    vscode: 'commonjs vscode', // The vscode-module is created on-the-fly and must be excluded
   },
   resolve: {
-    // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   module: {
     rules: [
@@ -31,20 +28,24 @@ const config = {
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
-          }
-        ]
-      }
-    ]
+            loader: 'ts-loader',
+          },
+        ],
+      },
+    ],
   },
-  plugins: [ // <-- Add this plugins section
+  plugins: [
+    // This plugin ensures the wasm file is copied to the dist folder
     new CopyPlugin({
-      patterns: [{ from: 'src/formatter/pkg', to: 'pkg' }]
-    })
+      patterns: [
+        { from: './src/formatter/pkg/formatter_bg.wasm', to: '.' }
+      ],
+    }),
   ],
-  devtool: 'nosources-source-map',
-  infrastructureLogging: {
-    level: "log", // enables logging required for problem matchers
+  experiments: {
+    asyncWebAssembly: true,
   },
+  devtool: 'source-map',
+  ignoreWarnings: [(warning) => true], // Suppress warnings from wasm-bindgen code
 };
-module.exports = [config];
+module.exports = config;

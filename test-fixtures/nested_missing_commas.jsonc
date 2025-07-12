@@ -1,0 +1,14 @@
+{
+    "user": {
+        "name": "John Doe"
+        "email": "john@example.com"
+        "preferences": {
+            "theme": "dark"
+            "notifications": true
+        }
+    }
+    "settings": {
+        "autoSave": true
+        "lineNumbers": false
+    }
+}
