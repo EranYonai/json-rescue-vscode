@@ -1,37 +1,39 @@
-# Malformed JSON Formatter
+# JSON Rescue: Format, Validate & Repair
 
-A VS Code extension powered by Rust and WebAssembly that formats and fixes malformed JSON files with enhanced parsing capabilities.
+A lightweight, open-source [VS Code extension](https://marketplace.visualstudio.com/items?itemName=EranYonai.json-rescue) that turns many common forms of malformed JSON into valid, formatted JSON.
 
 ## Overview
 
-This extension provides robust JSON formatting for files that might not parse correctly with standard JSON formatters. Built with Rust for performance and reliability, it compiles to WebAssembly to run efficiently within VS Code.
+JSON Rescue is built in Rust and compiled to WebAssembly, so the repair engine stays fast and self-contained inside VS Code. It is designed for practical recovery, not magic: ambiguous or unsupported input may be rejected rather than inventing data.
 
 ## Features
 
-- **Robust JSON Parsing**: Handles malformed or poorly formatted JSON that other formatters might reject
-- **Rust-Powered Performance**: Fast processing using Rust compiled to WebAssembly
+- **JSON Repair**: Recovers many common forms of malformed or poorly formatted JSON
+- **Rust + WebAssembly**: A small, fast repair engine that runs locally in VS Code
 - **VS Code Integration**: Simple command palette integration for seamless workflow
-- **Error Handling**: Graceful error reporting when JSON cannot be parsed or formatted
+- **Safe Failure**: Reports ambiguous or unsupported input instead of guessing
 
 ## Installation
+
+Install JSON Rescue from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=EranYonai.json-rescue), or build it from source below.
 
 ### Prerequisites
 
 Before building this extension, ensure you have the following tools installed:
 
-- **Node.js** (v16 or higher) and **npm**
+- **Node.js** (v22.14.0, see `.nvmrc`) and **npm**
 - **Rust** toolchain via [rustup](https://rustup.rs/)
 - **wasm-pack** for compiling Rust to WebAssembly:
   ```bash
-  cargo install wasm-pack
+  cargo install wasm-pack --version 0.13.1 --locked
   ```
 
 ### Building from Source
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/EranYonai/malformed-json-formatter-vsext.git
-   cd malformed-json-formatter-vsext
+   git clone https://github.com/EranYonai/json-rescue-vscode.git
+   cd json-rescue-vscode
    ```
 
 2. **Install dependencies**:
@@ -53,7 +55,7 @@ Before building this extension, ensure you have the following tools installed:
 
 1. Open a file containing malformed JSON in VS Code
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-3. Search for "Format Malformed JSON" and select it
+3. Search for "JSON Rescue: Format Malformed JSON" and select it
 4. The extension will format the JSON in-place
 
 ## Development
@@ -80,33 +82,54 @@ Before building this extension, ensure you have the following tools installed:
    npm run watch
    ```
 
+   After making changes, run **Developer: Reload Window** in the Extension Development Host.
+
 2. **For Rust changes**, rebuild the WASM module:
    ```bash
    npm run build-wasm
    ```
 
+### Testing
+
+On macOS, set the Command Line Tools used by the Rust/WASM build first:
+
+```bash
+export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+export CC=/Library/Developer/CommandLineTools/usr/bin/clang
+export CXX=/Library/Developer/CommandLineTools/usr/bin/clang++
+export AR=/Library/Developer/CommandLineTools/usr/bin/ar
+export RANLIB=/Library/Developer/CommandLineTools/usr/bin/ranlib
+export CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER=/Library/Developer/CommandLineTools/usr/bin/clang
+```
+
+Run all test layers from the repository root:
+
+```bash
+cargo test --manifest-path src/formatter/Cargo.toml --locked
+npm test
+npm run test:integration
+```
+
+### Live Extension Testing
+
+Build and open a separate VS Code Extension Development Host window:
+
+```bash
+npm run build-all
+code --new-window --extensionDevelopmentPath="$PWD"
+```
+
+In the new window, open a JSON or JSONC file, then run **JSON Rescue: Format Malformed JSON** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+
+For iterative TypeScript changes, run `npm run watch` and then **Developer: Reload Window** in the development host. After Rust changes, run `npm run build-wasm` before reloading.
+
+To enable the `code` command, run **Shell Command: Install 'code' command in PATH** from your regular VS Code window.
+
 ### Debugging
 
-#### Debugging Steps
-
-1. **Build the extension**:
-   ```bash
-   npm run build-all
-   ```
-
-2. **Start debugging**:
-   - Press `F5` or go to Run and Debug panel (`Ctrl+Shift+D`)
-   - Select "Run Extension" and click play
-   - This opens a new "[Extension Development Host]" VS Code window
-
-3. **Test the extension**:
-   - In the Extension Development Host window, open a JSON file
-   - Use `Ctrl+Shift+P` → "Format Malformed JSON"
-
-4. **View debug output**:
-   - **Debug Console**: In your main VS Code window for `console.log()` output
-   - **Developer Tools**: In Extension Development Host → Help → Toggle Developer Tools
-   - **Breakpoints**: Set breakpoints in `src/extension.ts` for step-by-step debugging
+- **Debug Console**: In your main VS Code window for `console.log()` output
+- **Developer Tools**: In Extension Development Host → Help → Toggle Developer Tools
+- **Breakpoints**: Set breakpoints in `src/extension.ts` for step-by-step debugging
 
 ## Build Scripts
 
@@ -115,6 +138,10 @@ Before building this extension, ensure you have the following tools installed:
 - `npm run build-ts`: Build only the TypeScript extension code
 - `npm run watch`: Watch TypeScript files for changes and rebuild
 - `npm run vscode:prepublish`: Production build for publishing
+
+## Contributing
+
+Found an edge case? Please [open an issue](https://github.com/EranYonai/json-rescue-vscode/issues) with a minimal reproducible input and the expected output when possible. Pull requests with focused fixes or new input/output fixtures are welcome.
 
 ## Architecture
 

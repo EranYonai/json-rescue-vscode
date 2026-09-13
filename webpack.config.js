@@ -12,6 +12,7 @@ const config = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
+    clean: true,
     libraryTarget: 'commonjs2',
     devtoolModuleFilenameTemplate: '../[resource-path]',
   },
@@ -20,6 +21,9 @@ const config = {
   },
   resolve: {
     extensions: ['.ts', '.js'],
+    alias: {
+      formatter: path.resolve(__dirname, 'src/formatter/pkg'),
+    },
   },
   module: {
     rules: [
@@ -46,6 +50,5 @@ const config = {
     asyncWebAssembly: true,
   },
   devtool: 'source-map',
-  ignoreWarnings: [(warning) => true], // Suppress warnings from wasm-bindgen code
 };
 module.exports = config;
