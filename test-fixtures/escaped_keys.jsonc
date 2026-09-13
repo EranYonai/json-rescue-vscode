@@ -1,0 +1,7 @@
+{
+  "escaped quote\"key": 1,
+  "escaped backslash\\key": 2,
+  "escaped newline\nkey": 3,
+  "עברית😀": 4,
+  "escaped \u05e9\u05dc\u05d5\u05dd": 5
+}

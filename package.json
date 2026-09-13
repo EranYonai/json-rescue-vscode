@@ -3,9 +3,18 @@
   "displayName": "malformed-json-formatter",
   "description": "A Rust powered JSON formatter for messy JSON files.",
   "version": "0.0.1",
+  "license": "Apache-2.0",
+  "repository": "https://github.com/EranYonai/json-rescue-vscode.git",
+  "bugs": {
+    "url": "https://github.com/EranYonai/json-rescue-vscode/issues"
+  },
+  "homepage": "https://github.com/EranYonai/json-rescue-vscode#readme",
   "engines": {
     "vscode": "^1.54.0"
   },
+  "activationEvents": [
+    "onCommand:malformed-json-formatter.format"
+  ],
   "categories": [
     "Other"
   ],
@@ -21,10 +30,12 @@
   "scripts": {
     "vscode:prepublish": "npm run build-all",
     "build-all": "npm run build-wasm && npm run build-ts",
-    "build-wasm": "export PATH=$HOME/.cargo/bin:$PATH && cd src/formatter && wasm-pack build --target web --out-dir pkg",
+    "build-wasm": "cd src/formatter && wasm-pack build --target web --out-dir pkg",
     "build-ts": "webpack --mode production --devtool hidden-source-map",
+    "package": "vsce package",
     "watch": "webpack --watch",
-    "test": "npm run compile_tests && node out/test/node-test-runner.js",
+    "test": "npm run build-wasm && npm run compile_tests && node out/test/node-test-runner.js",
+    "test:integration": "npm run build-all && npm run compile_tests && vscode-test",
     "compile_tests": "tsc -p ./"
   },
   "devDependencies": {
@@ -33,16 +44,14 @@
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^8.31.1",
     "@typescript-eslint/parser": "^8.31.1",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.5.2",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "3.9.2",
     "copy-webpack-plugin": "^13.0.0",
     "eslint": "^9.25.1",
     "ts-loader": "^9.5.2",
     "typescript": "^5.8.3",
     "webpack": "^5.99.7",
     "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
-    "formatter": "file:src/formatter/pkg"
   }
 }

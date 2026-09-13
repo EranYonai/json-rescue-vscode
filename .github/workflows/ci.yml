@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 22 is an LTS release supported by the locked ESLint toolchain.
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - run: npm ci
+      # Rust and the WASM target are pinned in rust-toolchain.toml.
+      - run: rustup show active-toolchain
+      # Keep generated bindings reproducible across local and CI builds.
+      - run: cargo install wasm-pack --version 0.13.1 --locked
+      - run: cargo fmt --manifest-path src/formatter/Cargo.toml -- --check
+      - run: cargo test --manifest-path src/formatter/Cargo.toml --locked
+      - run: cargo clippy --manifest-path src/formatter/Cargo.toml --all-targets --all-features --locked -- -D warnings
+      - run: npm test
+      - run: npx eslint src --max-warnings=0
+      - run: xvfb-run -a npm run test:integration

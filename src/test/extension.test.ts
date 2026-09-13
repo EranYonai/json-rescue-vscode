@@ -1,15 +1,19 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
 import * as vscode from 'vscode';
-// import * as myExtension from '../../extension';
 
-suite('Extension Test Suite', () => {
-	vscode.window.showInformationMessage('Start all tests.');
+suite('Extension command', () => {
+	test('formats malformed JSON in the active editor', async () => {
+		const document = await vscode.workspace.openTextDocument({
+			language: 'json',
+			content: '{\n  "name": "Ada"\n  "age": 37\n}',
+		});
+		const editor = await vscode.window.showTextDocument(document);
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+		try {
+			await vscode.commands.executeCommand('malformed-json-formatter.format');
+			assert.strictEqual(editor.document.getText(), '{\n    "name": "Ada",\n    "age": 37\n}\n');
+		} finally {
+			await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+		}
 	});
 });

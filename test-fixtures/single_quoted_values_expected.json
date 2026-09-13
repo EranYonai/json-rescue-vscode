@@ -1,0 +1,5 @@
+{
+    "quotes": "double \"quotes\"",
+    "backslashes": "a \\path\\name",
+    "controls": "line\nnext\ttab\rreturn"
+}

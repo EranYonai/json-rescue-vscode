@@ -19,7 +19,7 @@ This extension provides robust JSON formatting for files that might not parse co
 
 Before building this extension, ensure you have the following tools installed:
 
-- **Node.js** (v16 or higher) and **npm**
+- **Node.js** (v22.14.0, see `.nvmrc`) and **npm**
 - **Rust** toolchain via [rustup](https://rustup.rs/)
 - **wasm-pack** for compiling Rust to WebAssembly:
   ```bash
@@ -30,8 +30,8 @@ Before building this extension, ensure you have the following tools installed:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/EranYonai/malformed-json-formatter-vsext.git
-   cd malformed-json-formatter-vsext
+   git clone https://github.com/EranYonai/json-rescue-vscode.git
+   cd json-rescue-vscode
    ```
 
 2. **Install dependencies**:
@@ -80,33 +80,54 @@ Before building this extension, ensure you have the following tools installed:
    npm run watch
    ```
 
+   After making changes, run **Developer: Reload Window** in the Extension Development Host.
+
 2. **For Rust changes**, rebuild the WASM module:
    ```bash
    npm run build-wasm
    ```
 
+### Testing
+
+On macOS, set the Command Line Tools used by the Rust/WASM build first:
+
+```bash
+export SDKROOT=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk
+export CC=/Library/Developer/CommandLineTools/usr/bin/clang
+export CXX=/Library/Developer/CommandLineTools/usr/bin/clang++
+export AR=/Library/Developer/CommandLineTools/usr/bin/ar
+export RANLIB=/Library/Developer/CommandLineTools/usr/bin/ranlib
+export CARGO_TARGET_AARCH64_APPLE_DARWIN_LINKER=/Library/Developer/CommandLineTools/usr/bin/clang
+```
+
+Run all test layers from the repository root:
+
+```bash
+cargo test --manifest-path src/formatter/Cargo.toml --locked
+npm test
+npm run test:integration
+```
+
+### Live Extension Testing
+
+Build and open a separate VS Code Extension Development Host window:
+
+```bash
+npm run build-all
+code --new-window --extensionDevelopmentPath="$PWD"
+```
+
+In the new window, open a JSON or JSONC file, then run **Format Malformed JSON** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+
+For iterative TypeScript changes, run `npm run watch` and then **Developer: Reload Window** in the development host. After Rust changes, run `npm run build-wasm` before reloading.
+
+To enable the `code` command, run **Shell Command: Install 'code' command in PATH** from your regular VS Code window.
+
 ### Debugging
 
-#### Debugging Steps
-
-1. **Build the extension**:
-   ```bash
-   npm run build-all
-   ```
-
-2. **Start debugging**:
-   - Press `F5` or go to Run and Debug panel (`Ctrl+Shift+D`)
-   - Select "Run Extension" and click play
-   - This opens a new "[Extension Development Host]" VS Code window
-
-3. **Test the extension**:
-   - In the Extension Development Host window, open a JSON file
-   - Use `Ctrl+Shift+P` → "Format Malformed JSON"
-
-4. **View debug output**:
-   - **Debug Console**: In your main VS Code window for `console.log()` output
-   - **Developer Tools**: In Extension Development Host → Help → Toggle Developer Tools
-   - **Breakpoints**: Set breakpoints in `src/extension.ts` for step-by-step debugging
+- **Debug Console**: In your main VS Code window for `console.log()` output
+- **Developer Tools**: In Extension Development Host → Help → Toggle Developer Tools
+- **Breakpoints**: Set breakpoints in `src/extension.ts` for step-by-step debugging
 
 ## Build Scripts
 

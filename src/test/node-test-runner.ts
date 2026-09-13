@@ -1,5 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
+import { pathToFileURL } from 'url';
+import { runFixtureTests } from './fixture-tests';
 
 // Mock minimal parts of VS Code API needed for testing
 const mockVscode = {
@@ -20,7 +22,7 @@ const mockVscode = {
 
 // Define the shape of the WASM module
 type WasmModule = {
-    default: (input: BufferSource) => Promise<any>; 
+    default: (input: { module_or_path: BufferSource }) => Promise<any>;
     formatJson: (input: string) => string;
 };
 
@@ -28,18 +30,19 @@ async function runTests() {
     console.log('Starting malformed JSON formatter tests...');
     
     try {
-        // Initialize the WASM module
-        const wasm: WasmModule = await import('formatter');
+        // Load the generated package directly; it is not installed as an npm dependency.
+        const formatterPath = path.join(__dirname, '..', '..', 'src', 'formatter', 'pkg', 'formatter.js');
+        const wasm: WasmModule = await import(pathToFileURL(formatterPath).href);
         
-        // Load WASM binary
-        const wasmPath = path.join(__dirname, '..', '..', 'dist', 'formatter_bg.wasm');
+        // Load the generated WASM binary
+        const wasmPath = path.join(__dirname, '..', '..', 'src', 'formatter', 'pkg', 'formatter_bg.wasm');
         const wasmBinary = fs.readFileSync(wasmPath);
         
-        await wasm.default(wasmBinary);
+        await wasm.default({ module_or_path: wasmBinary });
         const formatJson = wasm.formatJson;
         
         // Run tests
-        await testMissingCommas(formatJson);
+        await runFixtureTests(formatJson);
         await testValidJson(formatJson);
         await testEmptyInput(formatJson);
         
@@ -49,25 +52,6 @@ async function runTests() {
         console.error('❌ Tests failed:', error);
         process.exit(1);
     }
-}
-
-async function testMissingCommas(formatJson: (input: string) => string) {
-    console.log('Testing missing commas...');
-    
-    const testFixturesPath = path.join(__dirname, '..', '..', 'test-fixtures');
-    const inputFile = path.join(testFixturesPath, 'missing_commas.jsonc');
-    const expectedFile = path.join(testFixturesPath, 'missing_commas_expected.json');
-    
-    const input = fs.readFileSync(inputFile, 'utf8');
-    const expected = fs.readFileSync(expectedFile, 'utf8').trim();
-    
-    const result = formatJson(input).trim();
-    
-    if (result !== expected) {
-        throw new Error(`Expected:\n${expected}\n\nGot:\n${result}`);
-    }
-    
-    console.log('✅ Missing commas test passed');
 }
 
 async function testValidJson(formatJson: (input: string) => string) {
