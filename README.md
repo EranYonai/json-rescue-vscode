@@ -1,19 +1,21 @@
 # JSON Rescue: Format, Validate & Repair
 
-A VS Code extension powered by Rust and WebAssembly that formats, validates, and repairs malformed JSON files.
+A lightweight, open-source [VS Code extension](https://marketplace.visualstudio.com/items?itemName=EranYonai.json-rescue) that turns many common forms of malformed JSON into valid, formatted JSON.
 
 ## Overview
 
-This extension provides robust JSON formatting for files that might not parse correctly with standard JSON formatters. Built with Rust for performance and reliability, it compiles to WebAssembly to run efficiently within VS Code.
+JSON Rescue is built in Rust and compiled to WebAssembly, so the repair engine stays fast and self-contained inside VS Code. It is designed for practical recovery, not magic: ambiguous or unsupported input may be rejected rather than inventing data.
 
 ## Features
 
-- **Robust JSON Parsing**: Handles malformed or poorly formatted JSON that other formatters might reject
-- **Rust-Powered Performance**: Fast processing using Rust compiled to WebAssembly
+- **JSON Repair**: Recovers many common forms of malformed or poorly formatted JSON
+- **Rust + WebAssembly**: A small, fast repair engine that runs locally in VS Code
 - **VS Code Integration**: Simple command palette integration for seamless workflow
-- **Error Handling**: Graceful error reporting when JSON cannot be parsed or formatted
+- **Safe Failure**: Reports ambiguous or unsupported input instead of guessing
 
 ## Installation
+
+Install JSON Rescue from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=EranYonai.json-rescue), or build it from source below.
 
 ### Prerequisites
 
@@ -136,6 +138,10 @@ To enable the `code` command, run **Shell Command: Install 'code' command in PAT
 - `npm run build-ts`: Build only the TypeScript extension code
 - `npm run watch`: Watch TypeScript files for changes and rebuild
 - `npm run vscode:prepublish`: Production build for publishing
+
+## Contributing
+
+Found an edge case? Please [open an issue](https://github.com/EranYonai/json-rescue-vscode/issues) with a minimal reproducible input and the expected output when possible. Pull requests with focused fixes or new input/output fixtures are welcome.
 
 ## Architecture
 
