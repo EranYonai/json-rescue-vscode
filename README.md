@@ -1,6 +1,6 @@
-# Malformed JSON Formatter
+# JSON Rescue: Format, Validate & Repair
 
-A VS Code extension powered by Rust and WebAssembly that formats and fixes malformed JSON files with enhanced parsing capabilities.
+A VS Code extension powered by Rust and WebAssembly that formats, validates, and repairs malformed JSON files.
 
 ## Overview
 
@@ -23,7 +23,7 @@ Before building this extension, ensure you have the following tools installed:
 - **Rust** toolchain via [rustup](https://rustup.rs/)
 - **wasm-pack** for compiling Rust to WebAssembly:
   ```bash
-  cargo install wasm-pack
+  cargo install wasm-pack --version 0.13.1 --locked
   ```
 
 ### Building from Source
@@ -53,7 +53,7 @@ Before building this extension, ensure you have the following tools installed:
 
 1. Open a file containing malformed JSON in VS Code
 2. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-3. Search for "Format Malformed JSON" and select it
+3. Search for "JSON Rescue: Format Malformed JSON" and select it
 4. The extension will format the JSON in-place
 
 ## Development
@@ -117,7 +117,7 @@ npm run build-all
 code --new-window --extensionDevelopmentPath="$PWD"
 ```
 
-In the new window, open a JSON or JSONC file, then run **Format Malformed JSON** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
+In the new window, open a JSON or JSONC file, then run **JSON Rescue: Format Malformed JSON** from the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`).
 
 For iterative TypeScript changes, run `npm run watch` and then **Developer: Reload Window** in the development host. After Rust changes, run `npm run build-wasm` before reloading.
 

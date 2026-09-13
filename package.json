@@ -1,7 +1,8 @@
 {
-  "name": "malformed-json-formatter",
-  "displayName": "malformed-json-formatter",
-  "description": "A Rust powered JSON formatter for messy JSON files.",
+  "name": "json-rescue",
+  "displayName": "JSON Rescue: Format, Validate & Repair",
+  "description": "A Rust-powered VS Code extension that formats, validates, and repairs malformed JSON.",
+  "publisher": "EranYonai",
   "version": "0.0.1",
   "license": "Apache-2.0",
   "repository": "https://github.com/EranYonai/json-rescue-vscode.git",
@@ -23,7 +24,7 @@
     "commands": [
       {
         "command": "malformed-json-formatter.format",
-        "title": "Format Malformed JSON"
+        "title": "JSON Rescue: Format Malformed JSON"
       }
     ]
   },
